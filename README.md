@@ -455,19 +455,25 @@ A GDDR6-based PIM device released by SK Hynix, with one PE per bank, optimized f
 
 ### 8.4 Data Layout Issues in PIM Scenarios
 
-One may notice a problem: in traditional memory, to improve MLP / BLP, consecutive data is typically scattered across different channels, ranks, bank groups, and banks. However, in PIM, each compute unit can only see bank-local memory — if data is still scattered, local computation cannot be performed.
+One may notice a problem: in traditional memory, to improve MLP / BLP, consecutive data is typically scattered across different channels, ranks, bank groups, and banks. However, in PIM, each compute unit can only see bank-local memory — if data is still laid out using the traditional interleaving scheme, a single PIM unit cannot access the complete operand it needs.
 
-Therefore, in the processing-in-memory domain, data needs a **completely different layout** — the address mapping logic of the memory controller needs to be modified to place consecutive data that needs to be computed by PIM units **as much as possible within the same Bank**, thereby avoiding data synchronization across different banks or partial reduce of results.
+Therefore, in the processing-in-memory domain, data requires a **fundamentally different layout strategy**. Depending on the operator and tensor dimensions, there are two complementary approaches:
 
-This is also a very active research direction in the PIM field — **Software-Hardware Co-design**:
+- **Concentration**: For operators whose operands are small enough to fit within a single bank, the address mapping should be modified to place all required data **within the same bank**, allowing the local PE to complete the entire computation without any cross-bank communication.
 
-- How to define memory controller address mapping rules for different types of workload patterns
-- How to perform memory placement
-- How to determine which operators should be scheduled to which PIM device
-- Which operators are suited for the central processor, which are suited for PIM compute units, and which are suited for PNM compute units
-- How to design intelligent rules that are reasonably general across different workload patterns
+- **Deliberate partitioning**: For operators whose operands exceed a single bank's capacity — or where exploiting BLP is desirable for parallel speedup — tensors can be **deliberately split and distributed across multiple banks**. Each bank computes a partial result (e.g., partial GEMV or partial dot product), and these partial results are then reduced via PNM units, the host CPU, or a dedicated inter-bank reduction network. This approach effectively turns the bank count into a parallelism dimension, trading a reduction step for significantly higher aggregate internal bandwidth.
 
-**For example**: In large model inference, the prefill stage typically involves large amounts of GEMM with high computational density, which can be placed on the central processor; the decode stage typically involves GEMV with lower computational density, which can be placed on PIM devices. For models with large parameter counts, the tensors used by GEMV operators can be split and mapped across different banks, with each bank performing partial GEMV, and finally using PNM units or the central processor for partial reduce.
+In both cases, the memory controller's address mapping logic must be re-designed — the traditional "scatter for BLP" strategy optimized for conventional memory access is no longer appropriate for PIM workloads.
+
+This is one of the most active research directions in the PIM field — **Software-Hardware Co-design**:
+
+- How to define memory controller address mapping rules tailored to different workload patterns
+- How to determine the optimal data placement: concentrate within a single bank, or partition across banks for BLP-driven parallel acceleration
+- How to decide which operators should be offloaded to PIM, which to PNM, and which should remain on the host processor
+- How to schedule the reduction of partial results across banks with minimal overhead
+- How to design policies that are reasonably general across diverse workload patterns, rather than hand-tuned per model
+
+**Example — LLM inference**: In the prefill stage, the dominant operation is GEMM (large matrix × large matrix) with high arithmetic intensity, well-suited for GPU/NPU cores with massive ALU throughput. In the decode stage, the dominant operation shifts to GEMV (large matrix × single vector per request), where arithmetic intensity drops sharply and the bottleneck becomes weight-read bandwidth — a natural fit for PIM. For a large weight matrix that exceeds a single bank's capacity, the matrix can be partitioned along the output dimension across multiple banks, with each bank computing a partial GEMV on its local weight shard. The partial output vectors are then reduced (summed) via PNM units or the host. This partitioning directly leverages BLP: with 32 banks operating in parallel, the effective internal bandwidth is 32× that of a single bank — far beyond what the external DQ bus could deliver to a conventional processor.
 
 ---
 
