@@ -4,15 +4,12 @@
 
 **Continued from previous articles**
 
-- https://github.com/BrianXu0623/article_media_processing_distributed_data_flow
+- [High Performance Media Processing Distributed Data Flow: Zero-Copy And Kernel Bypass](https://github.com/BrianXu0623/article_media_processing_distributed_data_flow)
 
-![](images/img_1.png)
 
 The first article focused on memory efficiency issues in media streaming processing data flow: optimizing data layout in memory through Cap'n Proto to eliminate serialization overhead, combining shared memory to eliminate inter-process data copying, and exploring the possibility of leveraging RDMA to bypass the kernel protocol stack and achieve zero-copy network transmission in distributed operator scenarios. These three respectively correspond to optimizations at three levels: **encoding latency, copy latency, and transmission latency**.
 
-- https://github.com/BrianXu0623/article_next_gen_inference_arch
-
-![](images/img_2.png)
+- [Serverless GPU Inference: Dev Guide & Next-Gen CXL-Based Architecture](https://github.com/BrianXu0623/article_next_gen_inference_arch)
 
 The second article centered on large model inference operators: leveraging vLLM's asynchronous engine and dynamic batching mechanism, combined with single-task multi-concurrency capabilities, to optimize the low compute core utilization and memory wall problems encountered during inference. The latter half shifted toward the storage capacity bottleneck — in an era where model parameters easily reach 500–600 GB, offloading GPU/NPU video memory to CXL expansion memory through CXL disaggregated attached memory to resolve the inference batch size limitations caused by insufficient video memory; at the same time, discussing schemes to replace expensive HBM with multi-tier inexpensive CXL DDR memory, involving memory placement, promotion/demotion, and prefetch strategies.
 
