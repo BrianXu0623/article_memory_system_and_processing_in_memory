@@ -106,29 +106,13 @@ The most classic and most common form of main memory in servers, this is **volat
 
 ### 2.4 HBM (High Bandwidth Memory)
 
-Currently the highest bandwidth memory, also called High Bandwidth Memory. Typically equipped on high-end AI accelerators such as H100, B200, and MI300.
-
-HBM uses **3D TSV (Through-Silicon Via) stacking** of DRAM dies, combined with a **silicon interposer** (2.5D packaging) co-packaged with GPU/ASIC. Traces are only a few millimeters long, with no socket, micro-bump pitch at the micrometer level, allowing thousands of signal lines to be routed simultaneously. Therefore, HBM follows a **"wide and stable"** approach — using extremely wide buses and a large number of memory chips, achieving extremely high bandwidth without requiring very high frequency. The bus width per stack reaches **1024 bits**, and a single HBM3E stack can achieve bandwidth exceeding 1.2 TB/s. The fabrication requirements are the highest, and the cost is also the most expensive.
-
-Specifically, the H100 SXM is equipped with 80 GB HBM3 with a total bandwidth of **3.35 TB/s**; the B200 is equipped with 192 GB HBM3e with a total bandwidth of up to **8 TB/s**.
-
-The trade-offs are also obvious: HBM must be soldered together with the main chip and cannot be upgraded; stacking reduces the heat dissipation area, and cells are sensitive to temperature; capacity is limited by stack height and the number of dies — compared to DDR5 RDIMM modules that can reach 256 GB per stick, a single HBM stack is only on the order of 24–48 GB.
+Currently the highest bandwidth memory, also called High Bandwidth Memory. Typically equipped on high-end AI accelerators such as H100, B200, and MI300. HBM uses **3D TSV (Through-Silicon Via) stacking** of multiple DRAM dies, combined with a **silicon interposer** (2.5D packaging) co-packaged with GPU/ASIC, following a **"wide and stable"** approach — the bus width per stack reaches **1024 bits**, achieving extremely high bandwidth without requiring very high frequency. The H100 SXM is equipped with 80 GB HBM3 with a total bandwidth of **3.35 TB/s**; the B200 is equipped with 192 GB HBM3e with a total bandwidth of up to **8 TB/s**. The fabrication requirements are the highest, and the cost is also the most expensive. The trade-off is that HBM must be soldered together with the main chip and cannot be upgraded, and capacity is limited — a single stack is only on the order of 24–48 GB. The internal structure will be covered in detail in Section 6.
 
 ![](images/img_9.png)
 
 ### 2.5 GDDR (Graphics DDR)
 
-The mainstream medium for GPU video memory, primarily equipped on consumer and gaming graphics cards, such as RTX 4090/5090. GDDR takes a different route: **no stacking, directly pushing I/O frequency higher**.
-
-- GDDR6X uses **PAM4** signaling, up to 21–24 Gbps per pin;
-
-- Single chip 32-bit interface, data rate ~96 GB/s;
-
-- A ring of GDDR chips is soldered onto the GPU PCB (typically 8–24 chips), providing a combined bandwidth of several hundred GB/s to ~1 TB/s.
-
-The benefit of this approach is good heat dissipation and low voltage interference, making it easy to push to very high frequencies. However, the throughput gap with HBM is significant — taking the RTX 4090 as an example, 24 GB GDDR6X with a 384-bit bus provides bandwidth of approximately **1 TB/s**; while the HBM3 bandwidth of the H100 SXM is **3.35 TB/s**, and the B200 HBM3e reaches **8 TB/s**, a gap of 3–8 times. Additionally, the flat chip layout occupies a lot of PCB area, limiting video memory capacity (RTX 4090 has 24 GB, RTX 5090 has 32 GB).
-
-GDDR has no DIMM layer — **chips are soldered directly onto the PCB**, connected to the GPU via traces. This means users cannot upgrade video memory, but latency is lower and routing is more compact.
+The mainstream medium for GPU video memory, primarily equipped on consumer and gaming graphics cards, such as RTX 4090/5090. GDDR takes a different route: **no stacking, directly pushing I/O frequency higher**. GDDR6X uses **PAM4** signaling, up to 21–24 Gbps per pin. Taking the RTX 4090 as an example, 24 GB GDDR6X with a 384-bit bus provides bandwidth of approximately **1 TB/s**; the RTX 5090 upgrades to 32 GB GDDR7 with bandwidth of approximately **1.8 TB/s**. The throughput gap with HBM is approximately 3–8 times. Chips are soldered directly onto the PCB — users cannot upgrade video memory. The internal structure will be covered in detail in Section 6.
 
 ![](images/img_10.png)
 
