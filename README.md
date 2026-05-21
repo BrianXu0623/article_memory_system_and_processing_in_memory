@@ -1,4 +1,4 @@
-# Memory Systems and Processing-In-Memory
+# Breaking the Memory Wall: Memory System Internals and Processing-In-Memory
 
 ## Introduction: Why Are We Talking About Memory?
 
